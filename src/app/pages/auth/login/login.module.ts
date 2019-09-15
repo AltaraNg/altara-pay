@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { LoginPage } from './login.page';
 import { RegisterPage } from '../register/register.page';
-
+import {SharedModule} from '../../../shared.module'
 const routes: Routes = [
   {
     path: '',
@@ -17,6 +17,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
+    SharedModule,
     CommonModule,
     FormsModule,
     IonicModule,

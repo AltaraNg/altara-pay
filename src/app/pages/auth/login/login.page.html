@@ -1,15 +1,15 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-button color="light" (click)="dismissLogin()">Close</ion-button>
-    <ion-title>Login</ion-title>
-  </ion-toolbar>
+
 </ion-header>
 
 <ion-content padding>
-  <form #form="ngForm" (ngSubmit)="login(form)" method="post">
+    <app-loading></app-loading>
+    <ion-img style="margin:0 auto; margin-top:100px; height:150px" src="/assets/icon.svg"></ion-img>
+ <ion-list no-lines style="margin-top:50px">
+    <form #form="ngForm" (ngSubmit)="login(form)" method="post">
     <ion-item>
-      <ion-label position="floating">Email</ion-label>
-      <ion-input ngModel type="email" name="email"></ion-input>
+      <ion-label position="floating">Agent ID</ion-label>
+      <ion-input ngModel type="text" name="email"></ion-input>
     </ion-item>
   
     <ion-item>
@@ -17,27 +17,14 @@
       <ion-input ngModel type="password" name="password"></ion-input>
     </ion-item>
   
-    <p text-right>Forgot Password?</p>
-  
-    <ion-button type="submit" expand="full" color="primary">Login</ion-button>
+    <!-- <p text-right>Forgot Password? Contact Support </p> -->
+   <div  class='center'>  <ion-button  size="default" shape="round" type="submit" color="primary">
+     Sign In
+   </ion-button>
+   </div>
+      
+
   </form>
-  
-
-  <!-- <p text-center>OR</p>
-
-  <ion-button expand="full">
-    <ion-icon name="logo-google"></ion-icon>
-  </ion-button>
-
-  <ion-button expand="full">
-    <ion-icon name="logo-facebook"></ion-icon>
-  </ion-button>
-
-  <ion-button expand="full">
-    <ion-icon name="logo-twitter"></ion-icon>
-  </ion-button> -->
-
-  <p text-center>Don't have a account?</p>
-  <ion-button expand="full" color="danger" (click)="registerModal()">Register</ion-button>
+ </ion-list>
 
 </ion-content>

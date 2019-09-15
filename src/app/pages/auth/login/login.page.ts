@@ -19,36 +19,52 @@ export class LoginPage implements OnInit {
     private alertService: AlertService
   ) { }
 
+
+  ionViewWillEnter() {
+    this.authService.getToken().then(() => {
+      if(this.authService.isLoggedIn) {
+        this.navCtrl.navigateRoot('/dashboard');
+      }
+    });
+  }
+
   ngOnInit() {
   }
 
   // Dismiss Login Modal
-  dismissLogin() {
-    this.modalController.dismiss();
-  }
+  // dismissLogin() {
+  //   this.modalController.dismiss();
+  // }
 
-  // On Register button tap, dismiss login modal and open register modal
-  async registerModal() {
-    this.dismissLogin();
-    const registerModal = await this.modalController.create({
-      component: RegisterPage
-    });
-    return await registerModal.present();
-  }
+  // // On Register button tap, dismiss login modal and open register modal
+  // async registerModal() {
+  //   this.dismissLogin();
+  //   const registerModal = await this.modalController.create({
+  //     component: RegisterPage
+  //   });
+  //   return await registerModal.present();
+  // }
 
   login(form: NgForm) {
     this.authService.login(form.value.email, form.value.password).subscribe(
       data => {
-        this.alertService.presentToast("Logged In");
+        console.log(data);
+        if (data === undefined){
+          this.alertService.presentToast("Wrong Credentials");
+        }
+        else {
+          this.alertService.presentToast("Logged In");
+        }
       },
       error => {
         console.log(error);
       },
       () => {
-        this.dismissLogin();
+        // this.dismissLogin();
         this.navCtrl.navigateRoot('/dashboard');
       }
     );
   }
+
 
 }

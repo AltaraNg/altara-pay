@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Routes,RouterModule } from '@angular/router';
+import { MatStepperModule,MatRadioModule, MatSelectModule,MatOptionModule, MatInputModule, MatButtonModule, MatAutocompleteModule } from '@angular/material';
 import { IonicModule } from '@ionic/angular';
-
+import { Angular4PaystackModule } from 'angular4-paystack';
+import {SharedModule} from '../.././shared.module'
 import { DashboardPage } from './dashboard.page';
 
 const routes: Routes = [
@@ -16,10 +17,13 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
+    SharedModule,
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    Angular4PaystackModule,
+    MatStepperModule, MatInputModule,MatRadioModule, MatButtonModule, MatAutocompleteModule,ReactiveFormsModule,MatSelectModule,MatOptionModule
   ],
   declarations: [DashboardPage]
 })
