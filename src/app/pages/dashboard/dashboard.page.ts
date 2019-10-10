@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController,NavController } from '@ionic/angular';
+import { MenuController, NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
@@ -55,8 +55,8 @@ export class DashboardPage implements OnInit {
   dataToSave: any;
   amount: number;
   ref: number;
-remainder:any;
-  repayLevel:any;
+  remainder: any;
+  repayLevel: any;
   order = {
     return: 0,
     p_reciept: '',
@@ -76,16 +76,18 @@ remainder:any;
     dep_to: 1,
     referrer_id: '',
   }
-   repay = {
+  repay = {
     repayid: '',
     date_payed: '',
-    amount_payed: '',
+    amount_payed: 0,
     period: '',
     nowdate: '',
     nextdate: '',
     pay_bank: 1,
     pay_mtd: 4
   }
+  b_code: any;
+  sub_acct: any;
   order_id: string;
   verifyData: any;
   lastReceipt: any
@@ -98,16 +100,21 @@ remainder:any;
     private navCtrl: NavController
   ) {
     this.menu.enable(true);
+
+  }
+
+  ngOnInit() {
+
     this.saleTypes = [
       // { id: 1, name: "New -0%", percent: 0 },
-    // { id: 2, name: "sala-promo -0%", percent: 0 },
-    // { id: 3, name: "group5 -5%", percent: 5 },
-    // { id: 4, name: "group10 -10%", percent: 10 },
-    // { id: 5, name: "xmas-promo -0%", percent: 0 },
-    // { id: 6, name: "Renewal -5%", percent: 5 },
-    // { id: 7, name: "family-friend -5%", percent: 5 },
-    { id: 8, name: "Direct Debit -5%", percent: 5 }
-    // { id: 9, name: "Opening -10%", percent: 10 }
+      // { id: 2, name: "sala-promo -0%", percent: 0 },
+      // { id: 3, name: "group5 -5%", percent: 5 },
+      // { id: 4, name: "group10 -10%", percent: 10 },
+      // { id: 5, name: "xmas-promo -0%", percent: 0 },
+      // { id: 6, name: "Renewal -5%", percent: 5 },
+      // { id: 7, name: "family-friend -5%", percent: 5 },
+      { id: 8, name: "Direct Debit -5%", percent: 5 }
+      // { id: 9, name: "Opening -10%", percent: 10 }
     ];
     this.salePlans = [{ id: 1, name: "6 month plan 0%", percent: 0 },
     { id: 2, name: "6 month plan 20%", percent: 20 },
@@ -116,11 +123,18 @@ remainder:any;
     { id: 5, name: "6 month plan 80%", percent: 80 }
     ];
 
+    this.b_code = [
+      { id: 2, code: 'ACCT_z6a4tsvupmoo0hz' },
+      { id: 4, code: 'ACCT_93q2vycqxrg4nau' },
+      { id: 5, code: 'ACCT_ahye96qmminhs36' },
+      { id: 6, code: 'ACCT_88vzjvjeskbfe39' },
+      { id: 8, code: 'ACCT_8p45z039s2inwwe' },
+      { id: 9, code: 'ACCT_88vzjvjeskbfe39' },
+      { id: 11, code: 'ACCT_w3ola5amahnl7mc' },
+      { id: 12, code: 'ACCT_fmntykscho1l47g' }
+    ]
 
 
-  }
-
-  ngOnInit() {
 
     this.sixthFormGroup = this._formBuilder.group({
       repaymentPrice: [''],
@@ -265,41 +279,58 @@ remainder:any;
       })
   }
 
-
-
-  processRecieptNo() {
+  processBankcode() {
     this.authService.getBranchId().then(() => {
-
-      this.authService.getLastreceipt().subscribe(
-        result => {
-          this.lastReceipt = result;
-          // this.lastReceipt = 'LSIW00022'
-          console.log(this.lastReceipt);
-        })
-
-    });
-
+      console.log(this.authService.branch_id);
+      this.b_code.forEach(element => {
+        if (element.id == Number(this.authService.branch_id)) {
+          this.sub_acct = element.code;
+          console.log(this.sub_acct);
+        }
+      });
+    })
   }
 
-  computeR(rec:any){
-      var nR:any;
-      var prefix = rec.substring(0,4);
-       console.log(Number(rec.substring(4)) + 1)
-       var r =  Number(rec.substring(4)) + 1
-       // challenge 
-       if (prefix == 'APCH'){
-          nR = prefix + '0000' + r
-       }
-       else if (r.toString().length == 2){
-       nR = prefix + '000' + r
-       }
-       else   if (r.toString().length == 3){
-      nR =  prefix + '00' + r
-       }
-       else {
-      nR =  prefix + r
-       }
-       return nR
+
+  processRecieptNo(stepper: MatStepper) {
+    var re: any;
+    this.authService.getBranchId().then(() => {
+      this.authService.getLastreceipt().subscribe(
+        result => {
+          re = result;
+          this.lastReceipt = re.id[0].id
+          // this.lastReceipt = 'LSIW00022'
+          console.log(this.lastReceipt);
+          if (result) {
+            this.pushauthCode(this.computeR(this.lastReceipt), this.verifyData.data.authorization.authorization_code, stepper)
+          }
+        })
+    });
+  }
+
+  computeR(rec: any) {
+    var nR: any;
+    var nR;
+    var prefix = rec.substring(0, 4);
+    console.log(Number(rec.substring(4)) + 1)
+    var r = Number(rec.substring(4)) + 1
+    // challenge 
+    if (prefix == 'APCH') {
+      nR = prefix + '0000' + r
+    }
+    else if (r.toString().length == 2) {
+      nR = prefix + '000' + r
+    }
+    else if (r.toString().length == 3) {
+      nR = prefix + '00' + r
+    }
+    else if (r.toString().length == 4) {
+      nR = prefix + '0' + r
+    }
+    else {
+      nR = prefix + r
+    }
+    return nR
   }
 
   checkTypePlan(stepper: MatStepper) {
@@ -316,7 +347,6 @@ remainder:any;
       }
     });
     if (this.thirdFormGroup.value) {
-      this.processRecieptNo();
       this.priceCal();
       stepper.next()
     }
@@ -341,7 +371,7 @@ remainder:any;
     let margin = 0.25;
     let totalP, downP, rPay;
 
-    if (mPrice <= 25000) {
+    if (mPrice < 18000) {
       mPrice = Math.ceil((mPrice * margin) + Number(mPrice));
 
       int = (plan == 0) ? 3.3 : 3;
@@ -360,17 +390,16 @@ remainder:any;
 
       rePay = Math.ceil((aTax - upFront) / 100) * 100;
 
-      mRepay = Math.ceil((rePay / 6) / 100) * 100;
+      mRepay = Math.ceil((rePay / 12) / 100) * 100;
       console.log(upFront, rePay, mRepay)
       downP = upFront
-      rPay = mRepay
+      rPay = mRepay * 2
       totalP = (rPay * 6 + downP);
       this.sixthFormGroup = this._formBuilder.group({
         repaymentPrice: [rPay],
         totalPrice: [totalP],
         downPayment: [downP],
       })
-
 
     }
     else {
@@ -383,12 +412,12 @@ remainder:any;
       aTax = ((0.05 * pInt) + pInt);
       upFront = (plan == 0) ? 0 : aTax * (plan / 100);
       rePay = aTax - upFront;
-      mRepay = (rePay / 6);
+      mRepay = (rePay / 12);
 
       console.log(upFront, rePay, mRepay)
       // totalP, downP,rPay;
       downP = Math.floor(upFront / 100) * 100
-      rPay = Math.floor(mRepay / 100) * 100
+      rPay = (Math.floor(mRepay / 100) * 100) * 2
       totalP = (rPay * 6 + downP);
       this.sixthFormGroup = this._formBuilder.group({
         repaymentPrice: [rPay],
@@ -411,6 +440,7 @@ remainder:any;
   }
 
   processPayment(stepper: MatStepper) {
+    this.processBankcode();
     this.ref = Math.floor((Math.random() * 1000000000) + 1);
     console.log(this.fifthFormGroup.value.makePayment, this.fifthFormGroup.value.enterAmount, this.fifthFormGroup.value.downPayment)
     if (this.fifthFormGroup.value.makePayment == '2' && (this.fifthFormGroup.value.enterAmount <= this.sixthFormGroup.value.downPayment)) {
@@ -428,17 +458,16 @@ remainder:any;
 
   }
 
-  paymentCancel(stepper:MatStepper) {
+  paymentCancel(stepper: MatStepper) {
   }
 
-  paymentDone($event, stepper:MatStepper) {
-    this.order_id = this.computeR(this.lastReceipt.id[0].id);
+  paymentDone($event, stepper: MatStepper) {
     this.authService.generateAuthKey(this.ref).subscribe(
       result => {
         console.log(result);
         this.verifyData = result;
         if (result) {
-          this.pushauthCode(this.order_id, this.verifyData.data.authorization.authorization_code,stepper)
+          this.processRecieptNo(stepper);
         }
       })
   }
@@ -451,7 +480,7 @@ remainder:any;
     return form_data;
   }
 
-  pushauthCode(order_id: any, auth_code: any,stepper:MatStepper) {
+  pushauthCode(order_id: any, auth_code: any, stepper: MatStepper) {
     this.authService.logAuthcode(order_id, auth_code).subscribe(
       result => {
         if (result) {
@@ -465,17 +494,17 @@ remainder:any;
       })
   }
 
-  pushOrder(stepper:MatStepper) {
+  pushOrder(stepper: MatStepper) {
     let today = new Date();
     let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
     this.order.p_date = date;
     this.order.custp_id = this.firstFormGroup.value.customerId;
-    this.order.p_reciept = this.order_id;
+    this.order.p_reciept = this.computeR(this.lastReceipt);
     this.order.product_sku = this.thirdFormGroup.value.productSku;
     this.order.product_price = this.sixthFormGroup.value.totalPrice;
 
-    if (this.amount == Number(this.sixthFormGroup.value.downPayment + '00')){
-      this.repayLevel = 'firstrepayment';
+    if (this.amount == Number(this.sixthFormGroup.value.downPayment + '00')) {
+      this.repayLevel = 'firstpayment';
     }
     else {
       this.remainder = this.amount - Number(this.sixthFormGroup.value.downPayment + '00')
@@ -498,37 +527,38 @@ remainder:any;
           this.pushRepayment(stepper);
         }
         else {
-          stepper.reset();
+          this.alertService.presentToast("Payment Made but an Issue occured, Contact Support");
         }
       })
   }
-  addDays(date:Date, days:number){
+  addDays(date: Date, days: number) {
     var result = new Date(date);
     result.setDate(date.getDate() + days);
     return result;
-}
+  }
 
-formatDate(date:Date) {
+  formatDate(date: Date) {
     return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-}
+  }
 
-pushRepayment(stepper:MatStepper){
-this.repay.repayid=this.order_id;
-this.repay.date_payed=this.order.p_date;
-this.repay.amount_payed=this.remainder;
-this.repay.period=this.repayLevel;
-this.repay.nowdate=this.order.p_date;
-this.repay.nextdate=this.formatDate(this.addDays(new Date(this.order.p_date), 28));
-console.log(this.repay);
+  pushRepayment(stepper: MatStepper) {
+    this.repay.repayid = this.computeR(this.lastReceipt);
+    this.repay.date_payed = this.order.p_date;
+    this.repay.amount_payed = this.remainder / 100;
+    this.repay.period = this.repayLevel;
+    this.repay.nowdate = this.order.p_date;
+    this.repay.nextdate = this.formatDate(this.addDays(new Date(this.order.p_date), 28));
+    console.log(this.repay);
     let formData = this.toFormData(this.repay);
 
-    
     this.authService.updateRepayment(formData).subscribe(
       result => {
         if (result) {
           console.log(result);
           this.alertService.presentToast("Repayment Posted");
+          this.lastReceipt = '';
           stepper.reset();
+          this.ngOnInit();
         }
       })
   }
@@ -538,7 +568,7 @@ console.log(this.repay);
   logout() {
     this.authService.logout();
     if (this.authService.isLoggedIn) {
-      this.alertService.presentToast('Problem Logging Out');  
+      this.alertService.presentToast('Problem Logging Out');
     }
     else {
       this.navCtrl.navigateRoot('/login');

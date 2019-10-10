@@ -188,6 +188,8 @@ export class AuthService {
 
   logout() {
           this.storage.remove("token");
+          this.storage.remove("id");
+          this.storage.remove("branch_id");
           this.isLoggedIn = false;
           delete this.token;
   }
@@ -283,7 +285,7 @@ export class AuthService {
   }
 
   generateAuthKey(ref: any) {
-    let tokenStr = 'sk_live_b2b0dc2e326f9d38e9d41ea52ef1517171d72637';
+    let tokenStr = 'sk_test_bb1ea0ac61e6899e972d53bd530bed6aa6e325ee';
     return this.http.get(this.env.PAYSTACK_CUSTOMER_VERIFY + ref + "", { headers: { "Authorization": `Bearer ${tokenStr}` } }
     ).pipe(
       tap(data => {
